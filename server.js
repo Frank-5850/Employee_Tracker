@@ -38,6 +38,7 @@ const begin = () => {
           break;
 
         case "View all roles":
+          viewAllRoles();
           break;
 
         case "View all employees":
@@ -70,7 +71,19 @@ const viewDepartments = () => {
   connection.query("SELECT * FROM department", (err, res) => {
     console.log(`All Departments:`);
     res.forEach((department) => {
-      console.log(`Name: ${department.name}`);
+      console.log(`ID:${department.id}, Name: ${department.name}`);
+    });
+    begin();
+  });
+};
+
+const viewAllRoles = () => {
+  connection.query("SELECT * FROM role", (err, res) => {
+    console.log(`All Roles:`);
+    res.forEach((role) => {
+      console.log(
+        `ID: ${role.id}, Title: ${role.title}, Salary: $${role.salary}K, Department ID: ${role.department_id}`
+      );
     });
     begin();
   });
