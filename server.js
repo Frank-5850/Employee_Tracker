@@ -34,6 +34,7 @@ const begin = () => {
     .then((answer) => {
       switch (answer.action) {
         case "View all departments":
+          viewDepartments();
           break;
 
         case "View all roles":
@@ -55,6 +56,7 @@ const begin = () => {
           break;
 
         case "exit":
+          connection.end();
           break;
 
         default:
@@ -62,4 +64,14 @@ const begin = () => {
           break;
       }
     });
+};
+
+const viewDepartments = () => {
+  connection.query("SELECT * FROM department", (err, res) => {
+    console.log(`All Departments:`);
+    res.forEach((department) => {
+      console.log(`Name: ${department.name}`);
+    });
+    begin();
+  });
 };
