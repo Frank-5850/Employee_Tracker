@@ -1,6 +1,6 @@
 DROP DATABASE IF EXISTS employees_db;
 CREATE DATABASE employees_db;
-USE DATABASE employees_db;
+USE employees_db;
 
 CREATE TABLE department (
     id INTEGER(11) AUTO_INCREMENT NOT NULL,
@@ -24,6 +24,6 @@ CREATE TABLE employee(
     role_id INTEGER NOT NULL,
     FOREIGN KEY (role_id) REFERENCES role(id),
     manager_id INTEGER,
-    FOREIGN KEY (manager_id) REFERENCES manager(id),
+    FOREIGN KEY (manager_id) REFERENCES employee(id),
     PRIMARY KEY(id)
 );
