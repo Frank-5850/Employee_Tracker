@@ -60,6 +60,7 @@ const begin = () => {
           break;
 
         case "Add a employee":
+          addEmployee();
           break;
 
         case "Update employee":
@@ -178,6 +179,57 @@ const addRole = () => {
           }
         });
         begin();
+      });
+  });
+};
+
+const addEmployee = () => {
+  connection.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "firstName",
+          type: "input",
+          message: "What is the Employee's first name?",
+        },
+        {
+          name: "lastName",
+          type: "input",
+          message: "What is the employee's last name",
+        },
+        {
+          name: "roleTitle",
+          type: "list",
+          message: "What role is this employee in?",
+          choices: function () {
+            roles = [];
+            res.forEach((res) => {
+              roles.push(res.title);
+            });
+            return roles;
+          },
+        },
+      ])
+      .then((answer) => {
+        console.log(answer);
+        const roleTitle = answer.roleTitle;
+        connection.query("SELECT * FROM role", (err, res) => {
+          for (let i = 0; i < res.length; i++) {
+            if (roleTitle == res[i].title) {
+              console.log(roleTitle);
+              var id = res[i].id;
+              var query =
+                "INSERT INTO employee (first_name,last_name, role_id) VALUES (?,?,?)";
+              var values = [answer.firstName, answer.lastName, id];
+              console.log(values);
+              connection.query(query, values, (err, res) => {
+                console.log("You have successfully added a new employee!");
+              });
+              viewAllEmployees();
+            }
+          }
+        });
       });
   });
 };
