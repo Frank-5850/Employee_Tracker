@@ -56,6 +56,7 @@ const begin = () => {
           break;
 
         case "Add a role":
+          addRole();
           break;
 
         case "Add a employee":
@@ -129,4 +130,54 @@ const addDepartment = () => {
       );
       begin();
     });
+};
+
+const addRole = () => {
+  connection.query("SELECT * FROM department", (err, res) => {
+    inquirer
+      .prompt([
+        {
+          name: "roleName",
+          type: "input",
+          message: "What is the name of the new role?",
+        },
+        { name: "salary", type: "input", message: "What is the salary?" },
+        {
+          name: "department",
+          type: "list",
+          message: "What department are you adding this role to?",
+          choices: function () {
+            var departments = [];
+            res.forEach((res) => {
+              departments.push(res.name);
+            });
+            return departments;
+          },
+        },
+      ])
+      .then((answer) => {
+        console.log(answer);
+        const department = answer.department;
+        console.log(department);
+        connection.query("SELECT * FROM department", (err, res) => {
+          for (let i = 0; i < res.length; i++) {
+            if (department == res[i].name) {
+              var id = res[i].id;
+              var salary = parseInt(answer.salary);
+              console.log(salary, typeof salary);
+              console.log(id, typeof id);
+              let query =
+                "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)";
+              let values = [answer.roleName, salary, id];
+              console.log(values, "hello");
+              connection.query(query, values, (err, res) => {
+                if (err) throw err;
+                console.log("you have successfully added a role");
+              });
+            }
+          }
+        });
+        begin();
+      });
+  });
 };
