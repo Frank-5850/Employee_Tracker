@@ -1,13 +1,19 @@
 const mysql = require("mysql");
 const inquirer = require("inquirer");
+const figlet = require("figlet");
 
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
   host: "localhost",
   port: 3306,
   user: "root",
   password: "password",
   database: "employees_db",
 });
+
+// figlet("Employee Tracker!!", async (err, transformed) => {
+//   if (err) throw err;
+//   console.log(transformed);
+// });
 
 connection.connect((err) => {
   if (err) throw err;
@@ -42,9 +48,11 @@ const begin = () => {
           break;
 
         case "View all employees":
+          viewAllEmployees();
           break;
 
         case "Add a department":
+          addDepartment();
           break;
 
         case "Add a role":
@@ -61,7 +69,8 @@ const begin = () => {
           break;
 
         default:
-          console.log("That is not a valid choice");
+          connection.end();
+          console.log("Have a nice day!");
           break;
       }
     });
@@ -87,4 +96,37 @@ const viewAllRoles = () => {
     });
     begin();
   });
+};
+
+const viewAllEmployees = () => {
+  connection.query("SELECT * FROM employee", (err, res) => {
+    console.log(`All Employees:`);
+    res.forEach((employee) => {
+      console.log(
+        `ID: ${employee.id}, Name: ${employee.first_name} ${employee.last_name}, Role ID: ${employee.role_id}, Manager ID: ${employee.manager_id}`
+      );
+    });
+    begin();
+  });
+};
+
+const addDepartment = () => {
+  inquirer
+    .prompt({
+      name: "department",
+      type: "input",
+      message: "What is the name of the department you would like to add?",
+    })
+    .then((answer) => {
+      connection.query(
+        "INSERT INTO department (name) VALUES (?)",
+        answer.department,
+        (err, res) => {
+          console.log(
+            `you successfully added ${answer.department.toUpperCase()}`
+          );
+        }
+      );
+      begin();
+    });
 };
