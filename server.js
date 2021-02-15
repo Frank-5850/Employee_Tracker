@@ -64,6 +64,7 @@ const begin = () => {
           break;
 
         case "Update employee":
+          updateEmployee();
           break;
 
         case "exit":
@@ -229,6 +230,72 @@ const addEmployee = () => {
               viewAllEmployees();
             }
           }
+        });
+      });
+  });
+};
+
+const updateEmployee = () => {
+  connection.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
+    inquirer
+      .prompt([
+        {
+          name: "employeeName",
+          type: "list",
+          message: "Which employee's role is being updated?",
+          choices: function () {
+            employees = [];
+            res.forEach((res) => {
+              employees.push(res.first_name);
+            });
+            return employees;
+          },
+        },
+      ])
+      .then((answer) => {
+        console.log(answer);
+        const name = answer.employeeName;
+        connection.query("SELECT * FROM role", (err, res) => {
+          inquirer
+            .prompt([
+              {
+                name: "role",
+                type: "list",
+                message: "What is their new role?",
+                choices: function () {
+                  roles = [];
+                  res.forEach((res) => {
+                    roles.push(res.title);
+                  });
+                  return roles;
+                },
+              },
+            ])
+            .then((answer) => {
+              console.log(answer);
+              const role = answer.role;
+              console.log(role);
+              connection.query(
+                "SELECT * FROM role WHERE title = ?",
+                role,
+                (err, res) => {
+                  if (err) throw err;
+                  console.log(res);
+                  var roleId = res[0].id;
+                  console.log(roleId);
+                  connection.query(
+                    "UPDATE employee SET role_id = ? WHERE first_name = ?",
+                    [roleId, name],
+                    (err, res) => {
+                      if (err) throw err;
+                      console.log(`You have successfully updated ${name}!`);
+                    }
+                  );
+                  begin();
+                }
+              );
+            });
         });
       });
   });
