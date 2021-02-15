@@ -10,14 +10,13 @@ const connection = mysql.createConnection({
   database: "employees_db",
 });
 
-// figlet("Employee Tracker!!", async (err, transformed) => {
-//   if (err) throw err;
-//   console.log(transformed);
-// });
-
 connection.connect((err) => {
   if (err) throw err;
-  begin();
+  figlet("Employee Tracker!!", (err, transformed) => {
+    if (err) throw err;
+    console.log(transformed);
+    begin();
+  });
 });
 
 const begin = () => {
@@ -158,20 +157,15 @@ const addRole = () => {
         },
       ])
       .then((answer) => {
-        console.log(answer);
         const department = answer.department;
-        console.log(department);
         connection.query("SELECT * FROM department", (err, res) => {
           for (let i = 0; i < res.length; i++) {
             if (department == res[i].name) {
               var id = res[i].id;
               var salary = parseInt(answer.salary);
-              console.log(salary, typeof salary);
-              console.log(id, typeof id);
               let query =
                 "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)";
               let values = [answer.roleName, salary, id];
-              console.log(values, "hello");
               connection.query(query, values, (err, res) => {
                 if (err) throw err;
                 console.log("you have successfully added a role");
@@ -213,17 +207,14 @@ const addEmployee = () => {
         },
       ])
       .then((answer) => {
-        console.log(answer);
         const roleTitle = answer.roleTitle;
         connection.query("SELECT * FROM role", (err, res) => {
           for (let i = 0; i < res.length; i++) {
             if (roleTitle == res[i].title) {
-              console.log(roleTitle);
               var id = res[i].id;
               var query =
                 "INSERT INTO employee (first_name,last_name, role_id) VALUES (?,?,?)";
               var values = [answer.firstName, answer.lastName, id];
-              console.log(values);
               connection.query(query, values, (err, res) => {
                 console.log("You have successfully added a new employee!");
               });
@@ -254,7 +245,6 @@ const updateEmployee = () => {
         },
       ])
       .then((answer) => {
-        console.log(answer);
         const name = answer.employeeName;
         connection.query("SELECT * FROM role", (err, res) => {
           inquirer
@@ -273,17 +263,13 @@ const updateEmployee = () => {
               },
             ])
             .then((answer) => {
-              console.log(answer);
               const role = answer.role;
-              console.log(role);
               connection.query(
                 "SELECT * FROM role WHERE title = ?",
                 role,
                 (err, res) => {
                   if (err) throw err;
-                  console.log(res);
                   var roleId = res[0].id;
-                  console.log(roleId);
                   connection.query(
                     "UPDATE employee SET role_id = ? WHERE first_name = ?",
                     [roleId, name],
