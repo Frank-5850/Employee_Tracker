@@ -80,6 +80,7 @@ const begin = () => {
 
 const viewDepartments = () => {
   connection.query("SELECT * FROM department", (err, res) => {
+    if (err) throw err;
     console.log(`All Departments:`);
     res.forEach((department) => {
       console.log(`ID:${department.id}, Name: ${department.name}`);
@@ -90,6 +91,7 @@ const viewDepartments = () => {
 
 const viewAllRoles = () => {
   connection.query("SELECT * FROM role", (err, res) => {
+    if (err) throw err;
     console.log(`All Roles:`);
     res.forEach((role) => {
       console.log(
@@ -102,6 +104,7 @@ const viewAllRoles = () => {
 
 const viewAllEmployees = () => {
   connection.query("SELECT * FROM employee", (err, res) => {
+    if (err) throw err;
     console.log(`All Employees:`);
     res.forEach((employee) => {
       console.log(
@@ -124,17 +127,19 @@ const addDepartment = () => {
         "INSERT INTO department (name) VALUES (?)",
         answer.department,
         (err, res) => {
+          if (err) throw err;
           console.log(
             `you successfully added ${answer.department.toUpperCase()}`
           );
         }
       );
-      begin();
+      viewDepartments();
     });
 };
 
 const addRole = () => {
   connection.query("SELECT * FROM department", (err, res) => {
+    if (err) throw err;
     inquirer
       .prompt([
         {
@@ -159,21 +164,23 @@ const addRole = () => {
       .then((answer) => {
         const department = answer.department;
         connection.query("SELECT * FROM department", (err, res) => {
+          if (err) throw err;
           for (let i = 0; i < res.length; i++) {
             if (department == res[i].name) {
               var id = res[i].id;
               var salary = parseInt(answer.salary);
-              let query =
-                "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)";
-              let values = [answer.roleName, salary, id];
-              connection.query(query, values, (err, res) => {
-                if (err) throw err;
-                console.log("you have successfully added a role");
-              });
+              connection.query(
+                "INSERT INTO role (title, salary, department_id) VALUES (?,?,?)",
+                [answer.roleName, salary, id],
+                (err, res) => {
+                  if (err) throw err;
+                  console.log("you have successfully added a role");
+                }
+              );
             }
           }
         });
-        begin();
+        viewAllRoles();
       });
   });
 };
@@ -209,15 +216,18 @@ const addEmployee = () => {
       .then((answer) => {
         const roleTitle = answer.roleTitle;
         connection.query("SELECT * FROM role", (err, res) => {
+          if (err) throw err;
           for (let i = 0; i < res.length; i++) {
             if (roleTitle == res[i].title) {
               var id = res[i].id;
-              var query =
-                "INSERT INTO employee (first_name,last_name, role_id) VALUES (?,?,?)";
-              var values = [answer.firstName, answer.lastName, id];
-              connection.query(query, values, (err, res) => {
-                console.log("You have successfully added a new employee!");
-              });
+              connection.query(
+                "INSERT INTO employee (first_name,last_name, role_id) VALUES (?,?,?)",
+                [answer.firstName, answer.lastName, id],
+                (err, res) => {
+                  if (err) throw err;
+                  console.log("You have successfully added a new employee!");
+                }
+              );
               viewAllEmployees();
             }
           }
@@ -247,6 +257,7 @@ const updateEmployee = () => {
       .then((answer) => {
         const name = answer.employeeName;
         connection.query("SELECT * FROM role", (err, res) => {
+          if (err) throw err;
           inquirer
             .prompt([
               {
@@ -278,7 +289,7 @@ const updateEmployee = () => {
                       console.log(`You have successfully updated ${name}!`);
                     }
                   );
-                  begin();
+                  viewAllEmployees();
                 }
               );
             });
